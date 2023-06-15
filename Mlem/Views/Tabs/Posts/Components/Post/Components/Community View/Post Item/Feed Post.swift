@@ -5,6 +5,10 @@
 //  Created by David Bureš on 25.03.2022.
 //
 
+// NOTES
+// Since padding varies depending on compact/large view, it is handled *entirely* in those components. No padding should
+// appear anywhere in this file.
+
 import CachedAsyncImage
 import QuickLook
 import SwiftUI
@@ -48,11 +52,8 @@ struct FeedPost: View
                 }
             
             Divider()
-            //        }.if (!shouldShowCompactPosts) { viewProxy in
-            //            viewProxy.padding(.top)
-            //        }
         }
-            .background(Color.systemBackground)
+        .background(Color.systemBackground)
     }
     
     @ViewBuilder

@@ -71,7 +71,6 @@ struct PostHeader: View {
         }
         .font(.subheadline)
         .foregroundColor(.secondary)
-        .background(.red)
     }
     
     @ViewBuilder
