@@ -39,6 +39,9 @@ struct PostInteractionBar: View {
     let compact: Bool
     let voteOnPost: (ScoringOperation) async -> Void
     
+    // computed
+    var publishedAgo: String { getTimeIntervalFromNow(date: postView.post.published )}
+    
     init(post: APIPostView, account: SavedAccount, compact: Bool, voteOnPost: @escaping (ScoringOperation) async -> Void) {
         self.postView = post
         self.account = account
@@ -51,34 +54,32 @@ struct PostInteractionBar: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 8) {
-                VoteComplex(vote: displayedVote, score: displayedScore, upvote: upvote, downvote: downvote)
-                    .padding(.trailing, 8)
-                SaveButton(saved: false)
-                    .accessibilityAction(named: saveButtonText(saved: dirtySaved), {
-                        Task(priority: .userInitiated) {
-                            await savePost()
-                        }
-                    })
-                    .onTapGesture {
-                        Task(priority: .userInitiated) {
-                            await savePost()
-                        }
-                        // ==== TEMPORARY ==== //
-                        isPresentingAlert = true
+        HStack(spacing: 8) {
+            VoteComplex(vote: displayedVote, score: displayedScore, upvote: upvote, downvote: downvote)
+                .padding(.trailing, 8)
+            
+            SaveButton(saved: false)
+                .onTapGesture {
+                    Task(priority: .userInitiated) {
+                        await savePost()
                     }
-                    .alert("That feature isn't implemented yet!",
-                           isPresented: $isPresentingAlert) {
-                    }
-                // ==== END TEMPORARY ==== //
-                
-                if let postURL = post.post.url {
-                    ShareButton(urlToShare: postURL, isShowingButtonText: false)
+                    // ==== TEMPORARY ==== //
+                    isPresentingAlert = true
                 }
-                Spacer()
-                infoBlock
-            }
+                .alert("That feature isn't implemented yet!",
+                       isPresented: $isPresentingAlert) {}
+            // ==== END TEMPORARY ==== //
+            ReplyButton()
+                .onTapGesture {
+                    // ==== TEMPORARY ==== //
+                    isPresentingAlert = true
+                }
+                .alert("That feature isn't implemented yet!",
+                       isPresented: $isPresentingAlert) {
+                }
+            // ==== END TEMPORARY ==== //
+            Spacer()
+            infoBlock
         }
         .dynamicTypeSize(compact ? .small : .medium)
     }
@@ -90,30 +91,17 @@ struct PostInteractionBar: View {
         HStack(spacing: 8) {
             HStack(spacing: iconToTextSpacing) {
                 Image(systemName: "clock")
-                Text(getTimeIntervalFromNow(date: postView.post.published))
+                Text(publishedAgo)
             }
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Posted \(getTimeIntervalFromNow(date: post.post.published))")
-            
             HStack(spacing: iconToTextSpacing) {
                 Image(systemName: "bubble.left")
                 Text(String(postView.counts.comments))
             }
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel("\(post.counts.comments) comments")
         }
         .foregroundColor(.secondary)
     }
     
     // helper functions
-    
-    // Not sure if this is working yet, need to revisit after save post is implemented.
-    func saveButtonText(saved: Bool) -> String {
-        if saved {
-            return "Unsave"
-        }
-        return "Save"
-    }
     
     func upvote() async -> Void {
         // don't do anything if currently awaiting a vote response
@@ -172,6 +160,5 @@ struct PostInteractionBar: View {
      */
     func savePost() async {
         // TODO: implement
-        UIAccessibility.post(notification: .announcement, argument: "Not yet implemented")
     }
 }
