@@ -67,8 +67,8 @@ struct PostHeader: View {
         }
         .accessibilityElement(children: .ignore)
         .accessibilityAddTraits(.isStaticText)
-        .accessibilityLabel("in \(post.community.name) by \(post.creator.name)")
-        .accessibilityAction(named: "Goto \(post.community.name)") {
+        .accessibilityLabel("in \(postView.community.name) by \(postView.creator.name)")
+        .accessibilityAction(named: "Goto \(postView.community.name)") {
             isShowingCommunity = true
         }
         .font(.subheadline)
