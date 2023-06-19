@@ -19,6 +19,19 @@ struct PostHeader: View {
     private let communityIconSize: CGFloat = 32
     private let defaultCommunityIconSize: CGFloat = 24 // a little smaller so it looks nice
     
+    // computed
+    // computed
+    var usernameColor: Color {
+        if postView.creator.admin {
+            return .red
+        }
+        if postView.creator.botAccount {
+            return .indigo
+        }
+        
+        return .secondary
+    }
+    
     var body: some View {
         HStack {
             HStack(spacing: 4) {
@@ -38,18 +51,7 @@ struct PostHeader: View {
                 NavigationLink(destination: UserView(userID: postView.creator.id, account: account)) {
                     Text(postView.creator.name)
                         .italic()
-                        .if(postView.creator.admin) { viewProxy in
-                            viewProxy
-                                .foregroundColor(.red)
-                        }
-                        .if(postView.creator.botAccount) { viewProxy in
-                            viewProxy
-                                .foregroundColor(.indigo)
-                        }
-                        .if(postView.creator.name == "lFenix") { viewProxy in
-                            viewProxy
-                                .foregroundColor(.yellow)
-                        }
+                        .foregroundColor(usernameColor)
                 }
             }
             
