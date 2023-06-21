@@ -11,66 +11,55 @@ import CachedAsyncImage
 
 struct PostHeader: View {
     // parameters
-    var postView: APIPostView
+    var post: APIPostView
     var account: SavedAccount
-    @State private var isShowingCommunity = false
     
     // constants
     private let communityIconSize: CGFloat = 32
     private let defaultCommunityIconSize: CGFloat = 24 // a little smaller so it looks nice
     
-    // computed
-    // computed
-    var usernameColor: Color {
-        if postView.creator.admin {
-            return .red
-        }
-        if postView.creator.botAccount {
-            return .indigo
-        }
-        
-        return .secondary
-    }
-    
     var body: some View {
         HStack {
             HStack(spacing: 4) {
                 // community avatar and name
-                NavigationLink(destination: CommunityView(account: account, community: postView.community, feedType: .all),
-                               isActive: $isShowingCommunity) {
+                NavigationLink(destination: CommunityView(account: account, community: post.community, feedType: .all)) {
                     communityAvatar
                         .frame(width: communityIconSize, height: communityIconSize)
                         .clipShape(Circle())
                         .overlay(Circle()
                             .stroke(.secondary, lineWidth: 1))
-                    Text(postView.community.name)
+                    Text(post.community.name)
                         .bold()
                 }
                 Text("by")
                 // poster
-                NavigationLink(destination: UserView(userID: postView.creator.id, account: account)) {
-                    Text(postView.creator.name)
+                NavigationLink(destination: UserView(userID: post.creator.id, account: account)) {
+                    Text(post.creator.name)
                         .italic()
-                        .foregroundColor(usernameColor)
+                        .if(post.creator.admin) { viewProxy in
+                            viewProxy
+                                .foregroundColor(.red)
+                        }
+                        .if(post.creator.botAccount) { viewProxy in
+                            viewProxy
+                                .foregroundColor(.indigo)
+                        }
+                        .if(post.creator.name == "lFenix") { viewProxy in
+                            viewProxy
+                                .foregroundColor(.yellow)
+                        }
                 }
             }
             
             Spacer()
             
-            if (postView.post.featuredLocal) {
+            if (post.post.featuredLocal) {
                 StickiedTag(compact: false)
-            }
-            
-            if (postView.post.nsfw) {
-                NSFWTag(compact: false)
             }
         }
         .accessibilityElement(children: .ignore)
         .accessibilityAddTraits(.isStaticText)
-        .accessibilityLabel("in \(postView.community.name) by \(postView.creator.name)")
-        .accessibilityAction(named: "Goto \(postView.community.name)") {
-            isShowingCommunity = true
-        }
+        .accessibilityLabel("in \(post.community.name) by \(post.creator.name)")
         .font(.subheadline)
         .foregroundColor(.secondary)
     }
@@ -78,7 +67,7 @@ struct PostHeader: View {
     @ViewBuilder
     private var communityAvatar: some View {
         Group {
-            if let communityAvatarLink = postView.community.icon {
+            if let communityAvatarLink = post.community.icon {
                 CachedAsyncImage(url: communityAvatarLink) { image in
                     if let avatar = image.image {
                         avatar
