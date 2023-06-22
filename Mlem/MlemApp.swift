@@ -100,6 +100,7 @@ struct MlemApp: App
                 })
                 .onAppear
                 {
+                    URLCache.shared = AppConstants.urlCache
                     if FileManager.default.fileExists(atPath: AppConstants.savedAccountsFilePath.path)
                     {
                         print("Saved Accounts file exists, will attempt to load saved accounts")
@@ -192,7 +193,7 @@ struct MlemApp: App
                             print("Failed while creating empty file: \(emptyFileCreationError)")
                         }
                     }
-                    
+
                     // set app theme to user preference
                     let windowScene =  UIApplication.shared.connectedScenes.first as? UIWindowScene
                     windowScene?.windows.first?.overrideUserInterfaceStyle = lightOrDarkMode

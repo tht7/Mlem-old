@@ -70,7 +70,7 @@ struct FeedPost: View
                     .background(Color.systemBackground)
                     .offset(x: dragPosition.width)
                     .highPriorityGesture(
-                        DragGesture(minimumDistance: 15) // min distance prevents conflict with scrolling drag gesture
+                        DragGesture(minimumDistance: 30) // min distance prevents conflict with scrolling drag gesture
                             .onChanged {
                                 let w = $0.translation.width
 
@@ -204,7 +204,7 @@ struct FeedPost: View
                 .foregroundColor(.accentColor)
             }
 
-            TextField("Reply to post", text: $replyContents, prompt: Text("\(account.username):"), axis: .vertical)
+            TextField("Reply to post", text: $replyContents, prompt: Text("\(account?.username ?? "Guest"):"), axis: .vertical)
                 .presentationDetents([.medium])
 
             Spacer()

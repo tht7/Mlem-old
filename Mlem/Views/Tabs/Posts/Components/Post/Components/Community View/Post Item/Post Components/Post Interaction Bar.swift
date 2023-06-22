@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import AlertToast
 import Foundation
 
 /**
@@ -14,6 +14,8 @@ import Foundation
  */
 struct PostInteractionBar: View {
     @EnvironmentObject var postTracker: PostTracker
+
+    @Environment(\.displayToast) var displayToast
 
     // constants
     let iconToTextSpacing: CGFloat = 2
@@ -151,7 +153,7 @@ struct PostInteractionBar: View {
      Sends a save request for the current post
      */
     func savePost() async -> Void {
-        guard let account = account else { return displayToast(FIND ME) }
+        guard let account = account else { return displayToast(AlertToast(displayMode: .banner(.pop), type: .regular, title: "Only registered accounts can save a post")) }
         guard dirty else {
             do {
                 // fake save

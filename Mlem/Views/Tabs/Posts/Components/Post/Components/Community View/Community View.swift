@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AlertToast
+import ASCollectionView
 
 struct CommunityView: View
 {
@@ -472,8 +473,12 @@ struct CommunityView: View
             }
             .buttonStyle(EmptyButtonStyle()) // Make it so that the link doesn't mess with the styling
             .task {
-                if post == postTracker.posts.last {
-                    await loadFeed()
+                if !postTracker.isLoading {
+                    if let position = postTracker.posts.lastIndex(of: post) {
+                        if  position >= (postTracker.posts.count - 50) {
+                            await loadFeed()
+                        }
+                    }
                 }
             }
         }
@@ -523,7 +528,7 @@ struct CommunityView: View
             // TODO: we may be receiving decoding errors (or something else) based on reports in the dev chat
             // for now we will fail silently if the user has posts to view while we investigate further
             print(String(describing: error))
-            assertionFailure("Unhandled error encountered, if you can reproduce this please raise a ticket/discuss in the dev chat")
+//            assertionFailure("Unhandled error encountered, if you can reproduce this please raise a ticket/discuss in the dev chat")
             // errorAlert = .unexpected
         }
 
