@@ -41,8 +41,12 @@ struct VoteComplex: View {
                     await downvote()
                 }
             default:
+                #if !os(macOS)
                 // Not sure what to do here.
                 UIAccessibility.post(notification: .announcement, argument: "Unknown Action")
+                #else
+                NSAccessibility.post(element: "Unknown Action", notification: .announcementRequested)
+                #endif
             }
         }
     }

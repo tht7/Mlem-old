@@ -28,6 +28,9 @@ class URLHandler {
     /// - Parameter url: The `URL` you require to be handled
     /// - Returns: A `Result` containing to the system level `OpenURLAction.Result` and any application level actions to perform
     static func handle(_ url: URL) -> Result {
+        #if os(macOS)
+        return .init(result: .systemAction, action: nil)
+        #else
         guard let scheme = url.scheme, scheme.hasPrefix("http") else {
             // TODO: handle additional link types appropriately
             // as the current handling only supports http(s) via Safari bail early if the scheme is unsupported...
@@ -39,9 +42,10 @@ class URLHandler {
         let viewController = SFSafariViewController(url: url, configuration: .default)
         UIApplication.shared.firstKeyWindow?.rootViewController?.present(viewController, animated: true)
         return .init(result: .handled, action: nil)
+        #endif
     }
 }
-
+#if !os(macOS)
 extension SFSafariViewController.Configuration {
     /// The default settings used in this application
     static var `default`: Self {
@@ -50,3 +54,4 @@ extension SFSafariViewController.Configuration {
         return configuration
     }
 }
+#endif

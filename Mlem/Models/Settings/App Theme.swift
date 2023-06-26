@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 enum PostFormat: String, SettingsOptions {
     case light = "Light"
@@ -20,5 +21,17 @@ enum PostFormat: String, SettingsOptions {
     
     var id: Self {
         return self
+    }
+    
+    var colorScheme: ColorScheme? {
+        get {
+            return switch self {
+                case .dark:
+                    ColorScheme.dark
+                case .light:
+                    ColorScheme.light
+            default: nil
+            }
+        }
     }
 }

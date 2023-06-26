@@ -22,7 +22,7 @@ struct OutlinedWebComplexStyle: GroupBoxStyle
         .clipShape(roundedRectangle)
         .overlay(
             roundedRectangle
-                .stroke(Color(.secondarySystemBackground), lineWidth: 1)
+                .stroke(Color.secondarySystemBackground, lineWidth: 1)
         )
     }
 }

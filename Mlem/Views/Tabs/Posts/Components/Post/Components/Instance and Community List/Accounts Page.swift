@@ -6,7 +6,9 @@
 //
 
 import SwiftUI
+#if !os(xrOS)
 import AlertToast
+#endif
 
 struct AccountsPage: View
 {
@@ -48,10 +50,12 @@ struct AccountsPage: View
                     }
                     .toolbar
                     {
+                        #if !os(macOS)
                         ToolbarItem(placement: .navigationBarLeading)
                         {
                             EditButton()
                         }
+                        #endif
                     }
                 }
                 else
@@ -96,10 +100,12 @@ struct AccountsPage: View
                     .handleAccountSecurity(account: account)
             }
             .navigationTitle("Accounts")
+#if !os(macOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar
             {
-                ToolbarItem(placement: .navigationBarTrailing)
+                ToolbarItem(placement: .secondaryAction)
                 {
                     Button
                     {
@@ -114,9 +120,11 @@ struct AccountsPage: View
                 AddSavedInstanceView(isShowingSheet: $isShowingInstanceAdditionSheet)
             }
         }
+        #if !os(xrOS)
         .toast(isPresenting: $appState.isShowingToast) {
             appState.toast ?? AlertToast(type: .regular, title: "Missing toast info")
         }
+        #endif
         .alert(appState.alertTitle, isPresented: $appState.isShowingAlert)
         {
             Button(role: .cancel)

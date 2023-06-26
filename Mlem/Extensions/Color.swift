@@ -7,15 +7,20 @@
 
 import Foundation
 import SwiftUI
-import UIKit
 
 extension Color
 {
     // This is here to give me dynamic light/dark system colors for view backgrounds
     // Maybe add more colors down the line if needed?
+    #if !os(macOS)
     static let systemBackground = Color(UIColor.systemBackground)
     static let secondarySystemBackground = Color(UIColor.secondarySystemBackground)
     static let tertiarySystemBackground = Color(UIColor.tertiarySystemBackground)
+    #else
+    static let systemBackground = Color(NSColor.windowBackgroundColor)
+    static let secondarySystemBackground = Color(NSColor.underPageBackgroundColor)
+    static let tertiarySystemBackground = Color(NSColor.controlBackgroundColor)
+    #endif
     
     // Interaction colors--redundant right now, but this will be nice if we want to change them later
     static let upvoteColor = Color.blue

@@ -197,7 +197,7 @@ extension Theme
                 .clipShape(RoundedRectangle(cornerSize: CGSize(width: 10, height: 10), style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerSize: CGSize(width: 10, height: 10))
-                        .stroke(Color(.secondarySystemBackground), lineWidth: 1.5)
+                        .stroke(Color.secondarySystemBackground, lineWidth: 1.5)
                 )
         }
 }

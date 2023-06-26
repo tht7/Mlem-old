@@ -123,7 +123,11 @@ struct CommentItemOld: View
                             }
                         default:
                             // Not sure what to do here.
+#if !os(macOS)
                             UIAccessibility.post(notification: .announcement, argument: "Unknown Action")
+                            #else
+                            NSAccessibility.post(element: "Unknown Action", notification: .announcementRequested)
+                            #endif
                         }
                     }
                     
@@ -234,9 +238,11 @@ struct CommentItemOld: View
                     Spacer()
                 }
                 .navigationTitle("Select text")
+                #if !os(macOS)
                 .navigationBarTitleDisplayMode(.inline)
+                #endif
                 .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
+                    ToolbarItem(placement: .cancellationAction) {
                         Button {
                             isShowingTextSelectionSheet.toggle()
                         } label: {

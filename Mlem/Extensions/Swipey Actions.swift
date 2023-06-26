@@ -16,8 +16,10 @@ struct SwipeyView: ViewModifier {
     @State var leftSwipeSymbol: String
     @State var rightSwipeSymbol: String
     
+    #if os(iOS) && !os(xrOS)
     // haptics
     let tapper: UIImpactFeedbackGenerator = UIImpactFeedbackGenerator(style: .light)
+    #endif
     
     // isDragging callback
     @Binding var isDragging: Bool
@@ -162,14 +164,18 @@ struct SwipeyView: ViewModifier {
                             rightSwipeSymbol = longRightSymbolName
                             dragBackground = longRightColor
                             if prevDragPosition >= -1 * AppConstants.longSwipeDragMin {
+                                #if !os(macOS) && !os(xrOS)
                                 tapper.impactOccurred()
+                                #endif
                             }
                         }
                         else if dragPosition < -1 * AppConstants.shortSwipeDragMin {
                             rightSwipeSymbol = shortRightSymbolName
                             dragBackground = shortRightColor
                             if prevDragPosition >= -1 * AppConstants.shortSwipeDragMin {
+#if !os(macOS) && !os(xrOS)
                                 tapper.impactOccurred()
+                                #endif
                             }
                         }
                         else if dragPosition < 0 {
@@ -184,14 +190,18 @@ struct SwipeyView: ViewModifier {
                             leftSwipeSymbol = shortLeftSymbolName
                             dragBackground = shortLeftColor
                             if prevDragPosition <= AppConstants.shortSwipeDragMin {
+#if !os(macOS) && !os(xrOS)
                                 tapper.impactOccurred()
+                                #endif
                             }
                         }
                         else {
                             leftSwipeSymbol = longLeftSymbolName
                             dragBackground = longLeftColor
                             if prevDragPosition <= AppConstants.longSwipeDragMin {
+#if !os(macOS) && !os(xrOS)
                                 tapper.impactOccurred()
+                                #endif
                             }
                         }
                         prevDragPosition = dragPosition

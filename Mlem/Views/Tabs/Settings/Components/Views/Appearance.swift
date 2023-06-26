@@ -6,11 +6,14 @@
 //
 
 import SwiftUI
+#if os(macOS)
+import AppKit
+#endif
 
 struct AppearanceSettingsView: View {
     
     // appearance
-    @AppStorage("lightOrDarkMode") var lightOrDarkMode: UIUserInterfaceStyle = .unspecified
+    @AppStorage("lightOrDarkMode") var lightOrDarkMode: PostFormat = .system
     @AppStorage("shouldBlurNsfw") var shouldBlurNsfw: Bool = true
     
     // website previews
@@ -40,7 +43,7 @@ struct AppearanceSettingsView: View {
                     settingIconSystemName: "paintbrush",
                     settingName: "App theme",
                     currentValue: $lightOrDarkMode,
-                    options: UIUserInterfaceStyle.allCases
+                    options: PostFormat.allCases
                 )
             }
             Section("Website Previews")
@@ -161,6 +164,8 @@ struct AppearanceSettingsView: View {
             }
         }
         .navigationTitle("Appearance")
+        #if !os(macOS)
         .navigationBarTitleDisplayMode(.inline)
+        #endif
     }
 }

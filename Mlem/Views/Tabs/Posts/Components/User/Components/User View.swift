@@ -124,7 +124,9 @@ struct UserView: View {
              */
         }
         .navigationTitle(userDetails.person.name)
+#if !os(macOS)
         .navigationBarTitleDisplayMode(.inline)
+        #endif
         .headerProminence(.standard)
     }
     

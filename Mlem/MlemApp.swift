@@ -11,7 +11,7 @@ import SwiftUI
 struct MlemApp: App
 {
     @AppStorage("hasUndergoneLegacyAccountDeletion_debug_3") var hasUndergoneLegaryAccountDeletion_debug: Bool = false
-    @AppStorage("lightOrDarkMode") var lightOrDarkMode: UIUserInterfaceStyle = .unspecified
+    @AppStorage("lightOrDarkMode") var lightOrDarkMode: PostFormat = .system
 
     @StateObject var appState: AppState = .init()
     @StateObject var accountsTracker: SavedAccountTracker = .init()
@@ -22,231 +22,276 @@ struct MlemApp: App
 
     var body: some Scene
     {
-        WindowGroup
-        {
-            ContentView()
-                .environmentObject(appState)
+#if os(macOS)
+        MenuBarExtra("Mlem", systemImage: "tortoise") {
+//            actualContent
+//                Text("lol").id(0)
+//                if let account = accountsTracker.savedAccounts.first {
+//                    CommunityView(account: account)
+//                        .onAppear {
+//                            appState.currentActiveAccount = account
+//                        }
+//                        .environmentObject(accountsTracker)
+//                        .environmentObject(filtersTracker)
+//                        .environmentObject(favoriteCommunitiesTracker)
+//                        .environmentObject(appState)
+//                        .environmentObject(communitySearchResultsTracker)
+//                } else {
+//                    Button("Empty accounts") { loadEverything() }
+//                        
+//                }
+//            }.task { loadEverything() }
+            actualContent
                 .environmentObject(accountsTracker)
                 .environmentObject(filtersTracker)
                 .environmentObject(favoriteCommunitiesTracker)
-                .environmentObject(communitySearchResultsTracker)
-                .onChange(of: accountsTracker.savedAccounts)
-                { newValue in
-                    do
-                    {
-                        let encodedSavedAccounts: Data = try encodeForSaving(object: newValue)
-
-                        do
-                        {
-                            try writeDataToFile(data: encodedSavedAccounts, fileURL: AppConstants.savedAccountsFilePath)
-                        }
-                        catch let writingError
-                        {
-                            print("Failed while saving data to file: \(writingError)")
-                        }
-                    }
-                    catch let encodingError
-                    {
-                        print("Failed while encoding accounts to data: \(encodingError)")
-                    }
-                }
-                .onChange(of: accountsTracker.accountPreferences) { newValue in
-                    print("now saving account Preferences")
-                    do
-                    {
-                        let encodedSavedAccounts: Data = try encodeForSaving(object: newValue)
-
-                        do
-                        {
-                            try writeDataToFile(data: encodedSavedAccounts, fileURL: AppConstants.savedAccountsPreferenceFilePath)
-                        }
-                        catch let writingError
-                        {
-                            print("Failed while saving data to file: \(writingError)")
-                        }
-                    }
-                    catch let encodingError
-                    {
-                        print("Failed while encoding accounts to data: \(encodingError)")
-                    }
-                }
-                .onChange(of: filtersTracker.filteredKeywords)
-                { newValue in
-                    print("Change detected in filtered keywords: \(newValue)")
-                    do
-                    {
-                        let encodedFilteredKeywords: Data = try encodeForSaving(object: newValue)
-
-                        print(encodedFilteredKeywords)
-                        do
-                        {
-                            try writeDataToFile(data: encodedFilteredKeywords, fileURL: AppConstants.filteredKeywordsFilePath)
-                        }
-                        catch let writingError
-                        {
-                            print("Failed while saving data to file: \(writingError)")
-                        }
-                    }
-                    catch let encodingError
-                    {
-                        print("Failed while encoding filters to data: \(encodingError)")
-                    }
-                }
-                .onChange(of: favoriteCommunitiesTracker.favoriteCommunities)
-                { newValue in
-                    print("Change detected in favorited communities: \(newValue)")
-
-                    do
-                    {
-                        let encodedFavoriteCommunities: Data = try encodeForSaving(object: newValue)
-
-                        do
-                        {
-                            try writeDataToFile(data: encodedFavoriteCommunities, fileURL: AppConstants.favoriteCommunitiesFilePath)
-                        }
-                        catch let writingError
-                        {
-                            print("Failed while saving data to file: \(writingError)")
-                        }
-                    }
-                    catch let encodingError
-                    {
-                        print("Failed while encoding favorited communities to data: \(encodingError)")
-                    }
-                }
-                .onChange(of: lightOrDarkMode, perform: { value in
-                    let windowScene =  UIApplication.shared.connectedScenes.first as? UIWindowScene
-                    windowScene?.windows.first?.overrideUserInterfaceStyle = value
-                })
-                .onAppear
-                {
-                    URLCache.shared = AppConstants.urlCache
-                    if FileManager.default.fileExists(atPath: AppConstants.savedAccountsFilePath.path)
-                    {
-                        print("Saved Accounts file exists, will attempt to load saved accounts")
-
-                        do
-                        {
-                            let loadedUpAccounts = try decodeFromFile(fromURL: AppConstants.savedAccountsFilePath, whatToDecode: .accounts) as! [SavedAccount]
-
-                            // MARK: - Associate the accounts with their secret credentials
-
-                            if !loadedUpAccounts.isEmpty
-                            {
-                                var loadedUpAccountTracker: [SavedAccount] = .init()
-
-                                for account in loadedUpAccounts
-                                {
-                                    loadedUpAccountTracker.append(SavedAccount(id: account.id, instanceLink: account.instanceLink, accessToken: AppConstants.keychain["\(account.id)_accessToken"]!, username: account.username))
-                                }
-
-                                accountsTracker.savedAccounts = loadedUpAccountTracker
-                            }
-                        }
-                        catch let savedAccountDecodingError
-                        {
-                            print("Failed while decoding saved accounts: \(savedAccountDecodingError)")
-                        }
-                    }
-                    else
-                    {
-                        print("Saved Accounts file does not exist, will try to create it")
-
-                        do
-                        {
-                            try createEmptyFile(at: AppConstants.savedAccountsFilePath)
-                        }
-                        catch let emptyFileCreationError
-                        {
-                            print("Failed while creating an empty file: \(emptyFileCreationError)")
-                        }
-                    }
-
-                    if FileManager.default.fileExists(atPath: AppConstants.filteredKeywordsFilePath.path)
-                    {
-                        print("Filtered keywords file exists, will attempt to load blocked keywords")
-                        do
-                        {
-                            filtersTracker.filteredKeywords = try decodeFromFile(fromURL: AppConstants.filteredKeywordsFilePath, whatToDecode: .filteredKeywords) as! [String]
-                        }
-                        catch let savedKeywordsDecodingError
-                        {
-                            print("Failed while decoding saved filtered keywords: \(savedKeywordsDecodingError)")
-                        }
-                    }
-                    else
-                    {
-                        print("Filtered keywords file does not exist, will try to create it")
-
-                        do
-                        {
-                            try createEmptyFile(at: AppConstants.filteredKeywordsFilePath)
-                        }
-                        catch let emptyFileCreationError
-                        {
-                            print("Failed while creating an empty file: \(emptyFileCreationError)")
-                        }
-                    }
-
-                    if FileManager.default.fileExists(atPath: AppConstants.favoriteCommunitiesFilePath.path)
-                    {
-                        print("Favorite communities file exists, will attempt to load favorite communities")
-                        do
-                        {
-                            favoriteCommunitiesTracker.favoriteCommunities = try decodeFromFile(fromURL: AppConstants.favoriteCommunitiesFilePath, whatToDecode: .favoriteCommunities) as! [FavoriteCommunity]
-                        }
-                        catch let favoriteCommunitiesDecodingError
-                        {
-                            print("Failed while decoding favorite communities: \(favoriteCommunitiesDecodingError)")
-                        }
-                    }
-                    else
-                    {
-                        print("Favorite communities file does not exist, will try to create it")
-
-                        do
-                        {
-                            try createEmptyFile(at: AppConstants.favoriteCommunitiesFilePath)
-                        }
-                        catch let emptyFileCreationError
-                        {
-                            print("Failed while creating empty file: \(emptyFileCreationError)")
-                        }
-                    }
-
-                    if FileManager.default.fileExists(atPath: AppConstants.savedAccountsPreferenceFilePath.path)
-                    {
-                        print("Favorite communities file exists, will attempt to load favorite communities")
-                        do
-                        {
-                            accountsTracker.accountPreferences = try decodeFromFile(fromURL: AppConstants.savedAccountsPreferenceFilePath, whatToDecode: .accountPreferences) as! [Int: AccountPreference]
-                        }
-                        catch let accountPreferencesDecodingError
-                        {
-                            print("Failed while decoding account Preferences: \(accountPreferencesDecodingError)")
-                        }
-                    }
-                    else
-                    {
-                        print("Account Preferences file does not exist, will try to create it")
-
-                        do
-                        {
-                            try createEmptyFile(at: AppConstants.savedAccountsPreferenceFilePath)
-                        }
-                        catch let emptyFileCreationError
-                        {
-                            print("Failed while creating empty file: \(emptyFileCreationError)")
-                        }
-                    }
-
-                    // set app theme to user preference
-                    let windowScene =  UIApplication.shared.connectedScenes.first as? UIWindowScene
-                    windowScene?.windows.first?.overrideUserInterfaceStyle = lightOrDarkMode
-                }
-                .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
-                    appState.locked = true
-                }
+                .presentedWindowStyle(.titleBar)
+        }.menuBarExtraStyle(.window)
+        #else
+        WindowGroup
+        {
+            actualContent
+                .environmentObject(accountsTracker)
+                .environmentObject(filtersTracker)
+                .environmentObject(favoriteCommunitiesTracker)
         }
+#endif
+        
+    }
+    
+    @ViewBuilder
+    var actualContent: some View {
+        ContentView()
+            .environmentObject(appState)
+            .environmentObject(communitySearchResultsTracker)
+            .onChange(of: accountsTracker.savedAccounts)
+            { newValue in
+                do
+                {
+                    let encodedSavedAccounts: Data = try encodeForSaving(object: newValue)
+
+                    do
+                    {
+                        try writeDataToFile(data: encodedSavedAccounts, fileURL: AppConstants.savedAccountsFilePath)
+                    }
+                    catch let writingError
+                    {
+                        print("Failed while saving data to file: \(writingError)")
+                    }
+                }
+                catch let encodingError
+                {
+                    print("Failed while encoding accounts to data: \(encodingError)")
+                }
+            }
+            .onChange(of: accountsTracker.accountPreferences) { newValue in
+                print("now saving account Preferences")
+                do
+                {
+                    let encodedSavedAccounts: Data = try encodeForSaving(object: newValue)
+
+                    do
+                    {
+                        try writeDataToFile(data: encodedSavedAccounts, fileURL: AppConstants.savedAccountsPreferenceFilePath)
+                    }
+                    catch let writingError
+                    {
+                        print("Failed while saving data to file: \(writingError)")
+                    }
+                }
+                catch let encodingError
+                {
+                    print("Failed while encoding accounts to data: \(encodingError)")
+                }
+            }
+            .onChange(of: filtersTracker.filteredKeywords)
+            { newValue in
+                print("Change detected in filtered keywords: \(newValue)")
+                do
+                {
+                    let encodedFilteredKeywords: Data = try encodeForSaving(object: newValue)
+
+                    print(encodedFilteredKeywords)
+                    do
+                    {
+                        try writeDataToFile(data: encodedFilteredKeywords, fileURL: AppConstants.filteredKeywordsFilePath)
+                    }
+                    catch let writingError
+                    {
+                        print("Failed while saving data to file: \(writingError)")
+                    }
+                }
+                catch let encodingError
+                {
+                    print("Failed while encoding filters to data: \(encodingError)")
+                }
+            }
+            .onChange(of: favoriteCommunitiesTracker.favoriteCommunities)
+            { newValue in
+                print("Change detected in favorited communities: \(newValue)")
+
+                do
+                {
+                    let encodedFavoriteCommunities: Data = try encodeForSaving(object: newValue)
+
+                    do
+                    {
+                        try writeDataToFile(data: encodedFavoriteCommunities, fileURL: AppConstants.favoriteCommunitiesFilePath)
+                    }
+                    catch let writingError
+                    {
+                        print("Failed while saving data to file: \(writingError)")
+                    }
+                }
+                catch let encodingError
+                {
+                    print("Failed while encoding favorited communities to data: \(encodingError)")
+                }
+            }
+//            .onChange(of: lightOrDarkMode, perform: { value in
+//                let windowScene =  UIApplication.shared.connectedScenes.first as? UIWindowScene
+//                windowScene?.windows.first?.overrideUserInterfaceStyle = value
+//            })
+            .preferredColorScheme(lightOrDarkMode.colorScheme)
+            .onAppear
+            {
+                loadEverything()
+            }
+        #if !os(macOS)
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+                appState.locked = true
+            }
+        #else
+            .onReceive(NotificationCenter.default.publisher(for: NSApplication.willResignActiveNotification)) { _ in
+                appState.locked = true
+            }
+        #endif
+    }
+    
+    @MainActor
+    func loadEverything() {
+        URLCache.shared = AppConstants.urlCache
+        if FileManager.default.fileExists(atPath: AppConstants.savedAccountsFilePath.path)
+        {
+            print("Saved Accounts file exists, will attempt to load saved accounts")
+
+            do
+            {
+                let loadedUpAccounts = try decodeFromFile(fromURL: AppConstants.savedAccountsFilePath, whatToDecode: .accounts) as! [SavedAccount]
+
+                // MARK: - Associate the accounts with their secret credentials
+
+                if !loadedUpAccounts.isEmpty
+                {
+                    var loadedUpAccountTracker: [SavedAccount] = .init()
+
+                    for account in loadedUpAccounts
+                    {
+                        loadedUpAccountTracker.append(SavedAccount(id: account.id, instanceLink: account.instanceLink, accessToken: AppConstants.keychain["\(account.id)_accessToken"]!, username: account.username))
+                    }
+
+                    accountsTracker.savedAccounts = loadedUpAccountTracker
+                }
+            }
+            catch let savedAccountDecodingError
+            {
+                print("Failed while decoding saved accounts: \(savedAccountDecodingError)")
+            }
+        }
+        else
+        {
+            print("Saved Accounts file does not exist, will try to create it")
+
+            do
+            {
+                try createEmptyFile(at: AppConstants.savedAccountsFilePath)
+            }
+            catch let emptyFileCreationError
+            {
+                print("Failed while creating an empty file: \(emptyFileCreationError)")
+            }
+        }
+
+        if FileManager.default.fileExists(atPath: AppConstants.filteredKeywordsFilePath.path)
+        {
+            print("Filtered keywords file exists, will attempt to load blocked keywords")
+            do
+            {
+                filtersTracker.filteredKeywords = try decodeFromFile(fromURL: AppConstants.filteredKeywordsFilePath, whatToDecode: .filteredKeywords) as! [String]
+            }
+            catch let savedKeywordsDecodingError
+            {
+                print("Failed while decoding saved filtered keywords: \(savedKeywordsDecodingError)")
+            }
+        }
+        else
+        {
+            print("Filtered keywords file does not exist, will try to create it")
+
+            do
+            {
+                try createEmptyFile(at: AppConstants.filteredKeywordsFilePath)
+            }
+            catch let emptyFileCreationError
+            {
+                print("Failed while creating an empty file: \(emptyFileCreationError)")
+            }
+        }
+
+        if FileManager.default.fileExists(atPath: AppConstants.favoriteCommunitiesFilePath.path)
+        {
+            print("Favorite communities file exists, will attempt to load favorite communities")
+            do
+            {
+                favoriteCommunitiesTracker.favoriteCommunities = try decodeFromFile(fromURL: AppConstants.favoriteCommunitiesFilePath, whatToDecode: .favoriteCommunities) as! [FavoriteCommunity]
+            }
+            catch let favoriteCommunitiesDecodingError
+            {
+                print("Failed while decoding favorite communities: \(favoriteCommunitiesDecodingError)")
+            }
+        }
+        else
+        {
+            print("Favorite communities file does not exist, will try to create it")
+
+            do
+            {
+                try createEmptyFile(at: AppConstants.favoriteCommunitiesFilePath)
+            }
+            catch let emptyFileCreationError
+            {
+                print("Failed while creating empty file: \(emptyFileCreationError)")
+            }
+        }
+
+        if FileManager.default.fileExists(atPath: AppConstants.savedAccountsPreferenceFilePath.path)
+        {
+            print("Favorite communities file exists, will attempt to load favorite communities")
+            do
+            {
+                accountsTracker.accountPreferences = try decodeFromFile(fromURL: AppConstants.savedAccountsPreferenceFilePath, whatToDecode: .accountPreferences) as! [Int: AccountPreference]
+            }
+            catch let accountPreferencesDecodingError
+            {
+                print("Failed while decoding account Preferences: \(accountPreferencesDecodingError)")
+            }
+        }
+        else
+        {
+            print("Account Preferences file does not exist, will try to create it")
+
+            do
+            {
+                try createEmptyFile(at: AppConstants.savedAccountsPreferenceFilePath)
+            }
+            catch let emptyFileCreationError
+            {
+                print("Failed while creating empty file: \(emptyFileCreationError)")
+            }
+        }
+
+        // set app theme to user preference
+//                let windowScene =  UIApplication.shared.connectedScenes.first as? UIWindowScene
+//                windowScene?.windows.first?.overrideUserInterfaceStyle = lightOrDarkMode
     }
 }

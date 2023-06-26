@@ -41,7 +41,7 @@ struct PostHeader: View {
                             .frame(width: communityIconSize, height: communityIconSize)
                             .clipShape(Circle())
                             .overlay(Circle()
-                                .stroke(Color(UIColor.secondarySystemBackground), lineWidth: 1))
+                                .stroke(Color.secondarySystemBackground, lineWidth: 1))
                         Text(postView.community.name)
                             .bold()
                     }

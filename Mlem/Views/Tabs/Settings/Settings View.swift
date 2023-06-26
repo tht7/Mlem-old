@@ -159,7 +159,9 @@ struct SettingsView: View
                 }
             }
             .navigationTitle("Settings")
+            #if !os(macOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
         }
     }
 }

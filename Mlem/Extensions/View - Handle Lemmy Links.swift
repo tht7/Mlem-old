@@ -7,7 +7,9 @@
 
 import Foundation
 import SwiftUI
+#if !os(xrOS)
 import AlertToast
+#endif
 
 struct HandleLemmyLinksDisplay: ViewModifier {
     @EnvironmentObject var appState: AppState
@@ -94,11 +96,15 @@ struct HandleLemmyLinkResolution: ViewModifier {
         if let account = account {
             if url.absoluteString.contains(["lem", "/c/", "/u/", "/post/", "@"]) {
                 // this link is sus! let's go
+                #if !os(xrOS)
                 // but first let's let the user know what's happning!
                 appState.toast = AlertToast(displayMode: .hud, type: .loading, title: "Redirecting... please wait")
                 appState.isShowingToast = true
+                #endif
                 Task(priority: .userInitiated) {
+                    #if !os(xrOS)
                     defer { appState.isShowingToast = false }
+                    #endif
                     let newBaseURL = "https://\(url.host() ?? "example.com")/api/v3"
                     var lookup = url.absoluteString
                     if !lookup.contains("http") {

@@ -7,6 +7,18 @@
 
 import Foundation
 import SwiftUI
+
+#if os(macOS)
+struct SelectableText: View {
+    let text: String
+    let selectable: Bool = true
+    
+    var body: some View {
+        Text(text)
+            .selectionDisabled(!selectable)
+    }
+}
+#else
 import UIKit
 
 class CustomUITextField: UITextField, UITextFieldDelegate {
@@ -68,6 +80,7 @@ class CustomUITextField: UITextField, UITextFieldDelegate {
     
 }
 
+
 struct SelectableText: UIViewRepresentable {
     
     private var text: String
@@ -99,3 +112,4 @@ struct SelectableText: UIViewRepresentable {
     }
     
 }
+#endif

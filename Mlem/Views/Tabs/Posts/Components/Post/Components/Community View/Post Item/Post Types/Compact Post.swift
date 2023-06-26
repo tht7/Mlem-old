@@ -107,9 +107,13 @@ struct CompactPost: View {
         .foregroundColor(.secondary)
         .font(.title)
         .frame(width: thumbnailSize, height: thumbnailSize)
+        #if !os(macOS)
         .background(Color(UIColor.systemGray4))
+#else
+        .background(Color(NSColor.systemGray))
+        #endif
         .clipShape(RoundedRectangle(cornerRadius: 4))
         .overlay(RoundedRectangle(cornerRadius: 4)
-            .stroke(Color(UIColor.secondarySystemBackground), lineWidth: 1))
+            .stroke(Color.secondarySystemBackground, lineWidth: 1))
     }
 }

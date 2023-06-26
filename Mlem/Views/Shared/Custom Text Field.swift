@@ -7,6 +7,50 @@
 
 import SwiftUI
 
+#if os(macOS)
+import AppKit
+struct CustomTextField: NSViewRepresentable
+{
+    
+    @State var placeholder: String
+    @Binding var text: String
+    
+    func makeNSView(context: Context) -> NSTextField
+    {
+        let textField: NSTextField = NSTextField()
+        textField.placeholderString = placeholder
+        textField.isBordered = true
+        
+        textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        
+        textField.isEnabled = false
+        
+        textField.delegate = context.coordinator
+        
+        return textField
+    }
+    
+    func updateNSView(_ nsView: NSTextField, context: Context)
+    {
+        nsView.stringValue = text
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(text: $text)
+    }
+    
+    class Coordinator: NSObject, NSTextFieldDelegate
+    {
+        @Binding var text: String
+        
+        init(text: Binding<String>) {
+            self._text = text
+        }
+    }
+    
+    typealias NSViewType = NSTextField
+}
+#else
 struct CustomTextField: UIViewRepresentable
 {
     
@@ -48,3 +92,4 @@ struct CustomTextField: UIViewRepresentable
     
     typealias UIViewType = UITextField
 }
+#endif

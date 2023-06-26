@@ -73,7 +73,7 @@ struct AddSavedInstanceView: View
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color(uiColor: .secondarySystemBackground))
+                        .background(Color.secondarySystemBackground)
                     }
                     else
                     {
@@ -108,61 +108,31 @@ struct AddSavedInstanceView: View
                 }
             }
             
-            Form
-            {
-                Section("Homepage")
+            SwiftUI.Form {
+                SwiftUI.Section
                 {
                     TextField("Homepage:", text: $instanceLink, prompt: Text("lemmy.ml"))
-                        .autocorrectionDisabled()
                         .focused($focusedField, equals: .homepageField)
+#if !os(macOS)
+                        .autocorrectionDisabled()
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
-                        .onAppear
-                    {
-                        focusedField = .homepageField
-                    }
-                }
-                
-                Section("Credentials")
-                {
-                    HStack
-                    {
-                        Text("Username")
-                        Spacer()
-                        TextField("Username", text: $usernameOrEmail, prompt: Text("Salmoon"))
-                            .autocorrectionDisabled()
-                            .keyboardType(.default)
-                            .textInputAutocapitalization(.never)
-                    }
-                    
-                    HStack
-                    {
-                        Text("Password")
-                        Spacer()
-                        SecureField("Password", text: $password, prompt: Text("VeryStrongPassword"))
-                            .submitLabel(.go)
-                    }
-
-                    if isShowingTwoFactorText {
-                        HStack
-                        {
-                            Text("2FA Token")
-                            Spacer()
-                            SecureField("TwoFactorToken", text: $twoFactorToken, prompt: Text("000000"))
-                                .focused($focusedField, equals: .twoFactorField)
-                                .submitLabel(.go)
-                                .keyboardType(.asciiCapableNumberPad)
-                                .onAppear
-                            {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
-                                    focusedField = .twoFactorField
-                                }
-                            }
+#endif
+                        .onAppear () {
+                            focusedField = .homepageField
                         }
-                    }
+                } header: {
+                    SwiftUI.Text("Homepage")
                 }
                 
-                Button
+                SwiftUI.Section
+                {
+                    credentialsSection
+                } header: {
+                    SwiftUI.Text("Credentials")
+                }
+                
+                SwiftUI.Button
                 {
                     Task
                     {
@@ -177,6 +147,36 @@ struct AddSavedInstanceView: View
         }
         .alert(using: $errorAlert) { content in
             Alert(title: Text(content.title), message: Text(content.message))
+        }
+    }
+    
+    @ViewBuilder
+    var credentialsSection: some View {
+        #if !os(macOS)
+        SwiftUI.TextField("Username", text: $usernameOrEmail, prompt: Text("Salmoon"))
+            .autocorrectionDisabled()
+            .keyboardType(.default)
+            .textInputAutocapitalization(.never)
+        #else
+        SwiftUI.TextField("Username", text: $usernameOrEmail, prompt: SwiftUI.Text("Salmoon"))
+        #endif
+        //
+        SwiftUI.SecureField("Password", text: $password, prompt: Text("VeryStrongPassword"))
+            .submitLabel(.go)
+
+        if isShowingTwoFactorText {
+            SecureField("TwoFactorToken", text: $twoFactorToken, prompt: Text("000000"))
+                .focused($focusedField, equals: .twoFactorField)
+                .submitLabel(.go)
+            #if !os(macOS)
+                .keyboardType(.asciiCapableNumberPad)
+            #endif
+                .onAppear
+            {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                    focusedField = .twoFactorField
+                }
+            }
         }
     }
     

@@ -255,7 +255,7 @@ struct CommunityView: View
             }
         }
         .toolbar {
-            ToolbarItemGroup(placement: .navigationBarTrailing) {
+            ToolbarItemGroup(placement: .secondaryAction) {
                 if !isShowingCommunitySearch {
                     SortingMenu(selectedSortingOption: Binding(
                         get: {
@@ -424,8 +424,10 @@ struct CommunityView: View
 
                 TextField("https://corkmac.app", text: $newPostURL, axis: .vertical)
                     .textFieldStyle(.roundedBorder)
+                #if !os(macOS)
                     .keyboardType(.URL)
                     .autocorrectionDisabled()
+                #endif
                     .focused($focusedNewPostField, equals: .newPostURL)
             }
 

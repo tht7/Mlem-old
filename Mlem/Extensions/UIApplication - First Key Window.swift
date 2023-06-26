@@ -6,6 +6,16 @@
 //
 
 import Foundation
+#if os(macOS)
+import AppKit
+
+extension NSApplication {
+    var firstKeyWindow: NSWindow?
+    {
+        return NSApplication.shared.keyWindow
+    }
+}
+#else
 import UIKit
 
 extension UIApplication
@@ -18,3 +28,4 @@ extension UIApplication
             .first?.keyWindow
     }
 }
+#endif

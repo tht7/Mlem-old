@@ -13,7 +13,9 @@ func sendSavePostRequest(account: SavedAccount,
     do {
         let request = SavePostRequest(account: account, postId: postId, save: save)
         
+        #if !os(macOS) && !os(xrOS)
         AppConstants.hapticManager.notificationOccurred(.success)
+        #endif
         let response = try await APIClient().perform(request: request)
         
         postTracker.update(with: response.postView)
@@ -21,7 +23,9 @@ func sendSavePostRequest(account: SavedAccount,
         return response.postView
     }
     catch {
+        #if !os(macOS) && !os(xrOS)
         AppConstants.hapticManager.notificationOccurred(.error)
+        #endif
         throw RatingFailure.failedToPostScore
     }
 }

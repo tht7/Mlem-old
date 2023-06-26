@@ -31,13 +31,16 @@ func ratePost(
             postId: postId,
             score: operation
         )
-        
+#if !os(macOS) && !os(xrOS)
         AppConstants.hapticManager.notificationOccurred(.success)
+#endif
         let response = try await APIClient().perform(request: request)
         postTracker.update(with: response.postView)
         return response.postView
     } catch {
+#if !os(macOS) && !os(xrOS)
         AppConstants.hapticManager.notificationOccurred(.error)
+#endif
         throw RatingFailure.failedToPostScore
     }
 }
@@ -56,13 +59,16 @@ func rateComment(
             commentId: comment.id,
             score: operation
         )
-        
+#if !os(macOS) && !os(xrOS)
         AppConstants.hapticManager.notificationOccurred(.success)
+#endif
         let response = try await APIClient().perform(request: request)
         let updatedComment = commentTracker.comments.update(with: response.commentView)
         return updatedComment
     } catch let ratingOperationError {
+#if !os(macOS) && !os(xrOS)
         AppConstants.hapticManager.notificationOccurred(.error)
+#endif
         print("Failed while trying to score: \(ratingOperationError)")
         throw RatingFailure.failedToPostScore
     }

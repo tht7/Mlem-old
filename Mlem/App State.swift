@@ -7,7 +7,9 @@
 
 import Foundation
 import SwiftUI
+#if !os(xrOS)
 import AlertToast
+#endif
 
 class AppState: ObservableObject
 {
@@ -23,9 +25,11 @@ class AppState: ObservableObject
     @Published var alertTitle: LocalizedStringKey = ""
     @Published var alertMessage: LocalizedStringKey = ""
     
+    #if !os(xrOS)
     // for those  messages that are less of a .alert ;)
     @Published var isShowingToast: Bool = false
     @Published var toast: AlertToast?
+    #endif
     
     @Published var criticalErrorType: CriticalError = .shittyInternet
     

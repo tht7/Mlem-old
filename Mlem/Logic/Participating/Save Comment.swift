@@ -14,8 +14,9 @@ func sendSaveCommentRequest(account: SavedAccount,
               commentTracker: CommentTracker) async throws {
     do {
         let request = SaveCommentRequest(account: account, commentId: commentId, save: save)
-        
+        #if !os(macOS) && !os(xrOS)
         AppConstants.hapticManager.notificationOccurred(.success)
+        #endif
         
         let response = try await APIClient().perform(request: request)
         
@@ -23,7 +24,9 @@ func sendSaveCommentRequest(account: SavedAccount,
     }
     catch {
         print(error)
+#if !os(macOS) && !os(xrOS)
         AppConstants.hapticManager.notificationOccurred(.error)
+        #endif
         throw SavingFailure.failedToSaveComment
     }
 }

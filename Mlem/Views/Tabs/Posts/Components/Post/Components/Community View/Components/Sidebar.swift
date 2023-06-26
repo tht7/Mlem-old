@@ -26,7 +26,9 @@ struct CommunitySidebarView: View {
             }
         }
         .navigationTitle("Sidebar")
+        #if !os(macOS)
         .navigationBarTitleDisplayMode(.inline)
+        #endif
         .onDisappear {
             isActive = false
         }

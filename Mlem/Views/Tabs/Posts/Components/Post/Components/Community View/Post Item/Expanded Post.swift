@@ -52,6 +52,7 @@ struct ExpandedPost: View
         ScrollView {
             VStack(spacing: 0) {
                 postView
+                
 
                 if commentTracker.isLoading {
                     commentsLoadingView
@@ -68,7 +69,11 @@ struct ExpandedPost: View
         }
         .scrollDisabled(isDragging)
         .environmentObject(commentReplyTracker)
-        .navigationBarTitle(post.community.name, displayMode: .inline)
+//#if !os(macOS)
+//        .navigationBarTitle(post.community.name, displayMode: .inline)
+//        #else
+        .navigationTitle(post.community.name)
+//        #endif
         .safeAreaInset(edge: .bottom)
         {
             VStack
@@ -203,7 +208,7 @@ struct ExpandedPost: View
             }
         }
         .toolbar {
-            ToolbarItemGroup(placement: .navigationBarTrailing) {
+            ToolbarItemGroup(placement: .secondaryAction) {
                 Menu {
                     Button {
                         commentSortingType = .active

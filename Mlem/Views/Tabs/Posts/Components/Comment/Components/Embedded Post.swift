@@ -21,7 +21,7 @@ struct EmbeddedPost: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .foregroundColor(.secondary)
             .background(RoundedRectangle(cornerRadius: 8)
-                .foregroundColor(Color(UIColor.secondarySystemBackground)))
+                .foregroundColor(Color.secondarySystemBackground))
             .font(.subheadline)
             .bold()
     }

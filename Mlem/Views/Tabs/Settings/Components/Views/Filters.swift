@@ -140,7 +140,9 @@ struct FiltersSettingsView: View {
             }
         }
         .navigationTitle("Filters")
+        #if !os(macOS)
         .navigationBarTitleDisplayMode(.inline)
+
         .toolbar
         {
             ToolbarItem(placement: .automatic) {
@@ -148,6 +150,7 @@ struct FiltersSettingsView: View {
                     .disabled(filtersTracker.filteredKeywords.isEmpty && filtersTracker.filteredUsers.isEmpty)
             }
         }
+        #endif
     }
     
     func addKeyword(_ newKeyword: String)

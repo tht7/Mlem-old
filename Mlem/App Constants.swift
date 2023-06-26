@@ -7,7 +7,9 @@
 
 import Foundation
 import KeychainAccess
+#if !os(macOS)
 import UIKit
+#endif
 
 struct AppConstants
 {
@@ -21,7 +23,7 @@ struct AppConstants
     static let relativeDateFormatter: RelativeDateTimeFormatter = RelativeDateTimeFormatter()
 
     // MARK: - Keychain
-    static let keychain: Keychain = Keychain(service: "com.davidbures.Mlem-keychain")
+    static let keychain: Keychain = Keychain(service: "com.davidbures.Mlem-tht7")
 
     // MARK: - Files
     private static let applicationSupportDirectoryPath: URL = try! FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
@@ -30,8 +32,10 @@ struct AppConstants
     static let filteredKeywordsFilePath: URL = applicationSupportDirectoryPath.appendingPathComponent("Blocked Keywords", conformingTo: .json)
     static let favoriteCommunitiesFilePath: URL = applicationSupportDirectoryPath.appendingPathComponent("Favorite Communities", conformingTo: .json)
 
+    #if os(iOS) && !os(xrOS)
     // MARK: - Haptics
     static let hapticManager: UINotificationFeedbackGenerator = UINotificationFeedbackGenerator()
+    #endif
     
     // MARK: - DragGesture thresholds
     static let longSwipeDragMin: CGFloat = 150;

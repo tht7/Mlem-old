@@ -103,7 +103,7 @@ struct LargePost: View {
                     .blur(radius: showNsfwFilter ? 30 : 0)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                     .overlay(RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color(UIColor.secondarySystemBackground), lineWidth: 1))
+                        .stroke(Color.secondarySystemBackground, lineWidth: 1))
             } placeholder: {
                 ProgressView()
             }

@@ -210,10 +210,11 @@ struct SectionIndexTitles: View {
                 DispatchQueue.main.async {
                     lastSelectedLabel = viewId
                     proxy.scrollTo(viewId, anchor: .center)
-                    
+                    #if os(iOS) && !os(xrOS)
                     // Play nice tappy taps
                     let impact = UIImpactFeedbackGenerator(style: .rigid)
                     impact.impactOccurred()
+                    #endif
                 }
             }
         }
